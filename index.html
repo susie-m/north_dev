@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Wildlife in Crediton</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --vh: 1vh; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Montserrat', sans-serif;
+      scroll-behavior: smooth;
+      overflow-x: hidden;
+    }
+
+    #bg-video {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      object-fit: cover;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+      padding: 5vh 5vw 20vh;
+      box-sizing: border-box;
+    }
+
+    .hero-title, #observations-section h2 {
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      color: white;
+      margin-top: 20vh;
+      font-weight: 700;
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 10vh;
+    }
+
+    .record-btn-top, #toggleObservations {
+      padding: 12px 24px;
+      font-family: 'Montserrat', sans-serif;
+      background: #ffffffd0;
+      color: #333;
+      font-size: 1.3rem;
+      font-weight: 500;
+      border: none;
+      border-radius: 50px;
+      text-decoration: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .record-btn-top:hover, #toggleObservations:hover {
+      transform: translateY(-3px);
+    }
+
+    #toggleObservations::after {
+      content: '\25BC';
+      font-size: 1.5rem;
+      align-items: center;
+      font-family: 'Montserrat', sans-serif;
+      margin-left: 8px;
+    }
+
+    #observations-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 5vw;
+      background: transparent;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+
+    #observations-section h2 {
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      color: white;
+      text-align: center;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    #obs-map-and-button {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 40px;
+    }
+
+    #map-toggle {
+      background: #ffffffd0;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 16px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      font-size: 1.2rem;
+    }
+
+    #obs-map-and-button iframe {
+      display: none;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      height: 300px;
+    }
+
+    #species-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+      width: 100%;
+      max-width: 1000px;
+      padding: 20px 0;
+      justify-items: center;
+    }
+
+    .species-entry {
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      overflow: hidden;
+      width: 100%;
+      max-width: 260px;
+      min-height: 340px;
+    }
+
+    .species-entry img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      border: 4px solid #fff; /* Add this */
+      border-radius: 6px;     /* Optional for a softer look */
+      box-sizing: border-box; /* Ensure padding doesn't break layout */
+    }
+
+    .species-name {
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      justify-content: space-between;
+      flex-grow: 1;
+      box-sizing: border-box;
+      font-size: 1rem;
+      line-height: 1.8;
+      color: #222;
+    }
+
+    .species-name small {
+      font-size: 0.9em;
+      line-height: 1.8;
+      color: #444;
+    }
+
+    .species-name a {
+      margin-top: 10px;
+      align-self: center;
+      padding: 4px 6px;
+      background: #fcd977;
+      color: #333;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 1em;
+    }
+
+    #acknowledgment {
+      text-align: center;
+      font-size: 0.9em;
+      color: #fff;
+      margin-top: 30px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+    }
+
+    footer#site-footer {
+      text-align: center;
+      font-size: 0.6rem;
+      color: #f5f5f5;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px;
+    }
+
+    @media (max-width: 900px) {
+      #species-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      #species-list {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 200px) {
+      #obs-map-and-button iframe {
+        width: 100%;
+        height: 200px;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<video autoplay muted playsinline loop preload="auto" poster="assets/north_devon_static.jpg" id="bg-video">
+  <source src="assets/north_devon.mp4" type="video/mp4">
+</video>
+
+<section id="hero">
+  <div class="hero-title">What's happening in North Devon?</div>
+  <div class="hero-buttons">
+    <a href="https://www.inaturalist.org/observations?nelat=51.283261&nelng=-3.7600592&swlat=51.009301&swlng=-4.320361&verifiable=any&view=map"
+       target="_blank" class="record-btn-top">Record an Observation</a>
+    <button id="toggleObservations">Community Observations</button>
+  </div>
+</section>
+
+<section id="observations-section">
+  <h2>Community Observations</h2>
+
+  <div id="obs-map-and-button">
+    <button id="map-toggle">Map View</button>
+    <iframe id="map-frame"
+      src="https://www.openstreetmap.org/export/embed.html?bbox=-4.32036,51.00930,-3.76005,51.28326&layer=mapnik&marker=51.14628,-4.04021"
+      
+      frameborder="0"></iframe>
+  </div>
+
+  <div id="species-list"></div>
+
+  <div id="acknowledgment">
+    Data sourced from the <a href="https://api.inaturalist.org/" target="_blank">iNaturalist API</a>.<br>
+    © iNaturalist and individual contributors.<br>
+    Images and data may be under individual <a href="https://www.inaturalist.org/pages/licenses" target="_blank">Creative Commons licenses</a>.
+  </div>
+</section>
+
+<footer id="site-footer">Website Design by Susie McLaren</footer>
+
+<script>
+function setHeroHeight() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+}
+window.addEventListener('resize', setHeroHeight);
+setHeroHeight();
+
+const speciesEntriesContainer = document.getElementById('species-list');
+
+async function fetchSpeciesData() {
+  const now = new Date().toISOString();
+  const apiUrl = `https://api.inaturalist.org/v1/observations?nelat=51.283261&nelng=-3.7600592&swlat=51.009301&swlng=-4.320361&d1=2025-01-01T00:00:00Z&d2=${now}&order_by=created_at&order=desc&per_page=50&verifiable=true`;
+
+  const response = await fetch(apiUrl);
+  const data = await response.json();
+  const speciesMap = {};
+
+  for (const obs of data.results) {
+    const sciName = obs.taxon?.name;
+    const commonName = obs.taxon?.preferred_common_name;
+    const photoUrl = obs.photos?.[0]?.url;
+    const observedDate = obs.observed_on;
+
+    if (sciName && commonName && photoUrl && !speciesMap[sciName]) {
+      const imageUrl = photoUrl.replace('square', 'medium');
+      speciesMap[sciName] = { commonName, imageUrl, observedDate };
+    }
+  }
+  return speciesMap;
+}
+
+async function loadSpeciesList() {
+  const species = await fetchSpeciesData();
+  speciesEntriesContainer.innerHTML = '';
+
+  for (const [scientificName, { commonName, imageUrl, observedDate }] of Object.entries(species)) {
+    const entry = document.createElement('div');
+    entry.className = 'species-entry';
+
+    const img = document.createElement('img');
+    img.alt = `${commonName} photo`;
+    img.src = imageUrl;
+    img.loading = 'lazy';
+
+    const nameText = document.createElement('div');
+    nameText.className = 'species-name';
+
+    const wikiSlug = scientificName.replace(/ /g, '_');
+    const wikiUrl = `https://en.wikipedia.org/wiki/${wikiSlug}`;
+    const observedText = `<small>Observed on ${new Date(observedDate).toLocaleDateString()}</small>`;
+
+    try {
+      const res = await fetch(`https://en.wikipedia.org/w/api.php?action=query&titles=${wikiSlug}&origin=*&format=json`);
+      const pages = await res.json();
+      const pageId = Object.keys(pages.query.pages)[0];
+
+      if (pageId !== "-1") {
+        nameText.innerHTML = `
+          <div>
+            ${commonName} (<em>${scientificName}</em>)<br>
+            ${observedText}
+          </div>
+          <a href="${wikiUrl}" target="_blank" rel="noopener noreferrer">Learn more</a>`;
+      } else {
+        nameText.innerHTML = `${commonName} (<em>${scientificName}</em>)<br>${observedText}`;
+      }
+    } catch {
+      nameText.innerHTML = `${commonName} (<em>${scientificName}</em>)<br>${observedText}`;
+    }
+
+    entry.appendChild(img);
+    entry.appendChild(nameText);
+    speciesEntriesContainer.appendChild(entry);
+  }
+
+  if (Object.keys(species).length === 0) {
+    speciesEntriesContainer.textContent = 'No species found.';
+  }
+}
+
+loadSpeciesList();
+
+document.getElementById("toggleObservations").addEventListener("click", () => {
+  document.getElementById("observations-section").scrollIntoView({ behavior: "smooth" });
+});
+
+document.getElementById("map-toggle").addEventListener("click", () => {
+  const map = document.getElementById("map-frame");
+  const button = document.getElementById("map-toggle");
+  if (map.style.display === "block") {
+    map.style.display = "none";
+    button.textContent = "Open Map";
+  } else {
+    map.src = "https://www.openstreetmap.org/export/embed.html?bbox=-4.32036,51.00930,-3.76005,51.28326&layer=mapnik&marker=51.14628,-4.04021";
+    map.style.display = "block";
+    button.textContent = "Close Map";
+  }
+
+  });
+</script>
+
+</body>
+</html>
